@@ -1,55 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dynamic Analysis of Pre-operative Hemoglobin vs. Monitoring Tracks</title>
-  <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; line-height: 1.6; }
-    header, section, footer { max-width: 900px; margin: auto; padding: 20px; }
-    header { background: #f5f5f5; }
-    h1 { margin: 0; }
-    h2 { margin-top: 1.5em; }
-    ul { list-style: disc inside; }
-    iframe { border: none; width: 100%; height: 600px; }
-    footer { text-align: center; font-size: 0.9em; color: #666; }
-  </style>
+  <title>模块二 · 时间筛选视角（单日动态）</title>
+
+  <!-- dc.js 样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/dc@4.2.4/dist/style/dc.min.css">
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- 依赖脚本：D3、Crossfilter、dc.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/crossfilter2@1.5.4/crossfilter.min.js"></script>
+  <script src="https://unpkg.com/dc@4.2.4/dist/dc.min.js"></script>
 </head>
+
 <body>
+  <h1>🩸 模块二 · 时间筛选视角（单日动态）</h1>
 
-  <header>
-    <h1>Dynamic Analysis of Pre-operative Hemoglobin vs. Monitoring Tracks</h1>
-  </header>
+  <!-- 1. 顶部：日期分布条形 + Brush -->
+  <div id="date-chart" class="chart-row"></div>
 
-  <section id="introduction">
-    <h2>Background & Research Questions</h2>
-    <p>
-      This visualization explores the relationship between pre-operative hemoglobin levels (<em>hb_pre</em>)
-      and the number of monitoring tracks (<em>n_tracks</em>) across different hospital departments, 
-      while also assessing the potential influence of surgery duration (<em>duration_min</em>).
-      Use the play button or slider to switch department views and observe clustering patterns.
-    </p>
-  </section>
+  <!-- 2. 一天内用餐时间分布 & 食物种类分布 -->
+  <div class="chart-row">
+    <div id="hour-chart" class="chart"></div>
+    <div id="food-chart" class="chart"></div>
+  </div>
 
-  <section id="legend">
-    <h2>Legend</h2>
-    <ul>
-      <li><strong>X-Axis</strong>: Number of Monitoring Tracks (<em>n_tracks</em>)</li>
-      <li><strong>Y-Axis</strong>: Pre-operative Hemoglobin (g/dL) (<em>hb_pre</em>)</li>
-      <li><strong>Marker Size</strong>: Surgery Duration (minutes) (<em>duration_min</em>)</li>
-      <li><strong>Color</strong>: Department</li>
-      <li><strong>Animation Controls</strong>: ▶ Play / Pause and slider</li>
-    </ul>
-  </section>
+  <!-- 3. 血糖增量直方图 & 营养素摄入柱状图 -->
+  <div class="chart-row">
+    <div id="glu-chart" class="chart"></div>
+    <div id="nutrient-chart" class="chart"></div>
+  </div>
 
-  <section id="visualization">
-    <h2>Dynamic Visualization</h2>
-    <iframe src="animation.html"></iframe>
-  </section>
+  <!-- 4. 折线图：每次用餐后的血糖趋势（可叠加） -->
+  <svg id="line-chart" width="960" height="260"></svg>
 
-  <footer>
-    <p>Data Sources: <code>clinical_cases.csv</code>, <code>track_lst.csv</code>, <code>lab_result.csv</code></p>
-  </footer>
+  <!-- 5. 统计卡片：均值、标准差、餐次数 -->
+  <section id="cards"></section>
 
+  <!-- 主逻辑脚本 -->
+  <script src="app.js"></script>
 </body>
 </html>

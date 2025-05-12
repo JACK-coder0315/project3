@@ -1,0 +1,49 @@
+/* 全局 */
+body {
+  font-family: sans-serif;
+  margin: 1rem;
+}
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* 多图并排 */
+.chart-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.chart {
+  flex: 1;
+  min-width: 300px;
+  height: 250px;
+}
+
+/* 顶部日期条形 */
+#date-chart {
+  height: 200px;
+}
+
+/* 折线图边框 */
+#line-chart {
+  display: block;
+  margin: auto;
+  border: 1px solid #ccc;
+}
+
+/* 统计卡片 */
+#cards {
+  margin-top: 1rem;
+  text-align: center;
+}
+.card {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  margin: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  font-size: 0.9rem;
+}
