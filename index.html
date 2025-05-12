@@ -1,42 +1,47 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>模块二 · 时间与受试者 筛选视角</title>
-
-  <!-- dc.js 样式 -->
-  <link rel="stylesheet" href="https://unpkg.com/dc@4.2.4/dist/style/dc.min.css">
-  <!-- 你自己的样式 -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- 依赖脚本 -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://unpkg.com/crossfilter2@1.5.4/crossfilter.min.js"></script>
-  <script src="https://unpkg.com/dc@4.2.4/dist/dc.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Glucose × Nutrition Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/dc@4/dist/style/dc.min.css"/>
+  <style>
+    #charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .chart { background: #fafafa; padding: 10px; border-radius: 4px; }
+  </style>
 </head>
-
 <body>
-  <h1>模块二 · 时间与受试者 筛选视角</h1>
+  <h1>血糖反应切片／切块可视化</h1>
+  <button id="reset-filters">重置筛选</button>
+  <div id="charts">
+    <div id="time-histogram" class="chart">
+      <strong>进食时段（小时）分布</strong>
+      <div class="dc-chart"></div>
+    </div>
+    <div id="carb-histogram" class="chart">
+      <strong>碳水化合物（10g 档）分布</strong>
+      <div class="dc-chart"></div>
+    </div>
+    <div id="protein-histogram" class="chart">
+      <strong>蛋白质（5g 档）分布</strong>
+      <div class="dc-chart"></div>
+    </div>
+    <div id="scatter-plot" class="chart">
+      <strong>碳水 vs. 血糖上升</strong>
+      <div class="dc-chart"></div>
+    </div>
+    <div id="subject-select" class="chart">
+      <strong>受试者筛选</strong>
+      <div class="dc-chart"></div>
+    </div>
+    <div id="total-count" class="chart">
+      <strong>当前总事件数</strong>
+      <div class="dc-chart"></div>
+    </div>
+  </div>
 
-  <!-- ① 受试者编号 (1–16) -->
-  <div id="person-chart" class="chart"></div>
-
-  <!-- ② 用餐时间选择 (0–1440 min, 5min bin) -->
-  <div id="time-chart" class="chart"></div>
-
-  <!-- ③ 宏量营养素比例 堆叠柱状 -->
-  <div id="nutrient-chart" class="chart"></div>
-
-  <!-- ④ ΔGlu 直方图 -->
-  <div id="delta-chart" class="chart"></div>
-
-  <!-- ⑤ 餐后血糖趋势折线图 (0–180 min) -->
-  <svg id="line-chart" width="960" height="260"></svg>
-
-  <!-- ⑥ 统计卡片 -->
-  <section id="cards"></section>
-
-  <!-- 主逻辑 -->
-  <script src="app.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/crossfilter2@1/crossfilter.min.js"></script>
+  <script src="https://unpkg.com/dc@4/dist/dc.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
