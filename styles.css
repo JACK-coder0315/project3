@@ -61,3 +61,11 @@ header h1 {
 .large .dc-chart {
   height: 600px;
 }
+
+/* 中心化受试者筛选下拉和当前事件数字 */
+#subject-select .dc-chart,
+#total-count .dc-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
