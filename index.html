@@ -1,46 +1,18 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>模块二 · 时间筛选视角（单日动态）</title>
+<body>
+  <!-- ① 受试者编号 下拉菜单 -->
+  <div id="person-select"></div>
 
-  <!-- dc.js 样式 -->
-  <link rel="stylesheet" href="https://unpkg.com/dc@4.2.4/dist/style/dc.min.css">
-  <!-- 自定义样式 -->
-  <link rel="stylesheet" href="style.css">
+  <!-- ② 用餐时间段 分布（0–24h 或 5min bin）-->
+  <div id="time-chart"></div>
 
-  <!-- 依赖脚本：D3、Crossfilter、dc.js -->
+  <!-- ③ 宏量营养素 比例 堆叠柱状图 -->
+  <div id="nutrient-chart"></div>
+
+  <!-- ④ 用餐后 ΔGlu 直方图 -->
+  <div id="delta-chart"></div>
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/crossfilter2@1.5.4/crossfilter.min.js"></script>
   <script src="https://unpkg.com/dc@4.2.4/dist/dc.min.js"></script>
-</head>
-
-<body>
-  <h1>🩸 模块二 · 时间筛选视角（单日动态）</h1>
-
-  <!-- 1. 顶部：日期分布条形 + Brush -->
-  <div id="date-chart" class="chart-row"></div>
-
-  <!-- 2. 一天内用餐时间分布 & 食物种类分布 -->
-  <div class="chart-row">
-    <div id="hour-chart" class="chart"></div>
-    <div id="food-chart" class="chart"></div>
-  </div>
-
-  <!-- 3. 血糖增量直方图 & 营养素摄入柱状图 -->
-  <div class="chart-row">
-    <div id="glu-chart" class="chart"></div>
-    <div id="nutrient-chart" class="chart"></div>
-  </div>
-
-  <!-- 4. 折线图：每次用餐后的血糖趋势（可叠加） -->
-  <svg id="line-chart" width="960" height="260"></svg>
-
-  <!-- 5. 统计卡片：均值、标准差、餐次数 -->
-  <section id="cards"></section>
-
-  <!-- 主逻辑脚本 -->
   <script src="app.js"></script>
 </body>
-</html>
