@@ -2,42 +2,72 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>Glucose × Nutrition Dashboard</title>
+  <title>血糖×营养多维交互 Dashboard</title>
   <link rel="stylesheet" href="https://unpkg.com/dc@4/dist/style/dc.min.css"/>
-  <style>
-    #charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .chart { background: #fafafa; padding: 10px; border-radius: 4px; }
-  </style>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <h1>血糖反应切片／切块可视化</h1>
-  <button id="reset-filters">重置筛选</button>
-  <div id="charts">
-    <div id="time-histogram" class="chart">
-      <strong>进食时段（小时）分布</strong>
-      <div class="dc-chart"></div>
-    </div>
-    <div id="carb-histogram" class="chart">
-      <strong>碳水化合物（10g 档）分布</strong>
-      <div class="dc-chart"></div>
-    </div>
-    <div id="protein-histogram" class="chart">
-      <strong>蛋白质（5g 档）分布</strong>
-      <div class="dc-chart"></div>
-    </div>
-    <div id="scatter-plot" class="chart">
-      <strong>碳水 vs. 血糖上升</strong>
-      <div class="dc-chart"></div>
-    </div>
-    <div id="subject-select" class="chart">
-      <strong>受试者筛选</strong>
-      <div class="dc-chart"></div>
-    </div>
-    <div id="total-count" class="chart">
-      <strong>当前总事件数</strong>
-      <div class="dc-chart"></div>
-    </div>
-  </div>
+  <header>
+    <h1>血糖反应多维探索</h1>
+    <button id="reset-filters">重置筛选</button>
+  </header>
+  <main id="charts">
+    <!-- 第一行：宏量营养素分布 -->
+    <section class="chart-row">
+      <div id="time-histogram" class="chart card">
+        <h2>进餐时段（整点小时）</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="subject-select" class="chart card">
+        <h2>受试者筛选</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="total-count" class="chart card">
+        <h2>当前事件数</h2>
+        <div class="dc-chart"></div>
+      </div>
+    </section>
+
+    <!-- 第二行：宏量柱状图 -->
+    <section class="chart-row">
+      <div id="carb-histogram" class="chart card">
+        <h2>碳水 (10 g 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="prot-histogram" class="chart card">
+        <h2>蛋白 (5 g 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="fat-histogram" class="chart card">
+        <h2>脂肪 (5 g 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+    </section>
+
+    <!-- 第三行：微量与能量柱状图 -->
+    <section class="chart-row">
+      <div id="sugar-histogram" class="chart card">
+        <h2>糖分 (5 g 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="fiber-histogram" class="chart card">
+        <h2>膳食纤维 (2 g 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="calorie-histogram" class="chart card">
+        <h2>能量 (100 kcal 档)</h2>
+        <div class="dc-chart"></div>
+      </div>
+    </section>
+
+    <!-- 第四行：散点图 -->
+    <section class="chart-row">
+      <div id="scatter-plot" class="chart card large">
+        <h2>碳水 vs. 血糖上升</h2>
+        <div class="dc-chart"></div>
+      </div>
+    </section>
+  </main>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/crossfilter2@1/crossfilter.min.js"></script>
@@ -45,3 +75,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
