@@ -1,4 +1,3 @@
-
 // script.js
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
@@ -90,7 +89,7 @@ d3.csv("all_glu_food.csv", d => ({
     .renderVerticalGridLines(true)
     .on('postRender', chart => {
       // Attach click event to each point
-      chart.svg().selectAll('path.symbol').on('click', function(event, d) {
+      chart.svg().selectAll('circle.symbol').on('click', function(event, d) {
         drawTimeSeries(d);
       });
     });
