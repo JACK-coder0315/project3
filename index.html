@@ -14,7 +14,7 @@
   </header>
 
   <main id="charts">
-    <!-- Overview -->
+    <!-- Dashboard Overview -->
     <section class="chart-row" id="overview">
       <div class="chart">
         <h2>Dashboard Overview</h2>
@@ -22,7 +22,7 @@
       </div>
     </section>
 
-    <!-- Filters -->
+    <!-- Filters & Summary -->
     <section class="chart-row">
       <div id="time-histogram" class="chart">
         <h2>Meal Time (Hour)</h2>
@@ -32,7 +32,7 @@
       <div id="subject-select" class="chart">
         <h2>Participant</h2>
         <div class="dc-chart"></div>
-        <p>Filter to a single participant’s records.</p>
+        <p>Filter to a single participant’s data.</p>
       </div>
       <div id="total-count" class="chart">
         <h2>Event Count</h2>
@@ -69,7 +69,7 @@
       <div id="fiber-histogram" class="chart">
         <h2>Fiber (2g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of dietary fiber per meal.</p>
+        <p>Distribution of fiber intake per meal.</p>
       </div>
       <div id="calorie-histogram" class="chart">
         <h2>Calories (100kcal bins)</h2>
@@ -83,7 +83,7 @@
       <div id="scatter-plot" class="chart large">
         <h2>Carbs vs. 2-Hour Glucose Increase</h2>
         <div class="dc-chart"></div>
-        <p>Each point: x = carbs (g), y = glucose increase in 2 hours.</p>
+        <p>Each point: x = carbs (g), y = glucose ↑ over 2 hours (mg/dL).</p>
       </div>
     </section>
 
@@ -91,11 +91,11 @@
     <section class="chart-row" id="argument">
       <div class="chart large">
         <h2>Key Insights</h2>
-        <p><strong>1.</strong> Carbohydrates drive most of the glucose rise.</p>
+        <p><strong>1.</strong> Carbs drive most of the glucose rise.</p>
         <p><strong>2.</strong> Protein, fat, and fiber blunt the spike.</p>
-        <p><strong>3.</strong> Meal timing matters (e.g., breakfast vs. dinner).</p>
-        <p><strong>4.</strong> Individuals vary in response.</p>
-        <p><strong>5.</strong> Event count ensures sample robustness.</p>
+        <p><strong>3.</strong> Meal timing matters.</p>
+        <p><strong>4.</strong> Individual variation is significant.</p>
+        <p><strong>5.</strong> Event count ensures robustness.</p>
       </div>
     </section>
   </main>
