@@ -83,27 +83,26 @@ d3.csv("added_food.csv", d => ({
     .x(d3.scaleLinear().domain([0, d3.max(data,d=>d.total_carb)+10]))
     .y(d3.scaleLinear().domain([0, d3.max(data,d=>d.grow_in_glu)+10]))
     .symbolSize(8)
-    .brushOn(false)  // <-- disable brush selection, cursor returns to default
+    .brushOn(false)  // disable brush to avoid crosshair cursor
     .renderHorizontalGridLines(true)
     .renderVerticalGridLines(true)
     .renderTitle(false);
 
   scatter.on('renderlet', chart => {
     const plotData = chart.plotData();
-    chart.svg().selectAll('circle.symbol')
+    chart.svg().selectAll('circle.dot, path.symbol')
       .data(plotData)
       .on('mouseover', (event, pd) => {
         const d = pd.data;
-        const tooltipHtml = `
-          <strong>Person:</strong> ${d.person}<br/>
-          <strong>Total Carb:</strong> ${d.total_carb} g<br/>
-          <strong>Protein:</strong> ${d.protein_g} g<br/>
-          <strong>Fat:</strong> ${d.fat_g} g<br/>
-          <strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL
-        `;
         d3.select('body').append('div')
           .attr('class','tooltip')
-          .html(tooltipHtml)
+          .html(`
+            <strong>Person:</strong> ${d.person}<br/>
+            <strong>Total Carb:</strong> ${d.total_carb} g<br/>
+            <strong>Protein:</strong> ${d.protein_g} g<br/>
+            <strong>Fat:</strong> ${d.fat_g} g<br/>
+            <strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL
+          `)
           .style('left', (event.pageX + 10) + 'px')
           .style('top',  (event.pageY + 10) + 'px');
       })
@@ -112,7 +111,7 @@ d3.csv("added_food.csv", d => ({
       });
   });
 
-  // Render all
+  // Render all charts
   dc.renderAll();
 
   // Reset filters
@@ -121,4 +120,3 @@ d3.csv("added_food.csv", d => ({
     dc.renderAll();
   });
 });
-
