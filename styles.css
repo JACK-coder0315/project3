@@ -10,7 +10,7 @@ header {
   align-items: center;
   padding: 1rem;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 header h1 {
@@ -40,7 +40,7 @@ header h1 {
   flex: 1;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -56,10 +56,14 @@ header h1 {
   text-align: center;
 }
 
+.chart p {
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
 .dc-chart {
   flex: 1;
   width: 100%;
-  height: auto;
   min-height: 450px;
 }
 
@@ -67,10 +71,13 @@ header h1 {
   min-height: 600px;
 }
 
-/* Center participant dropdown and event count */
 #subject-select .dc-chart,
 #total-count .dc-chart {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+#timeseries-chart {
+  flex: 1;
 }
