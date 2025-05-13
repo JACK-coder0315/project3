@@ -73,16 +73,16 @@ d3.csv("added_food.csv", row => ({
     .group(allCount);
 
   // 4–9. Nutrient Histograms
-  const nutrientConfigs = [
+  const configs = [
     { id: 'carb-histogram',    dim: carbDim,  grp: carbGrp,  max: d => d.total_carb, precision: 10 },
-    { id: 'prot-histogram',    dim: protDim,  grp: protGrp,  max: d => d.protein_g, precision: 5 },
-    { id: 'fat-histogram',     dim: fatDim,   grp: fatGrp,   max: d => d.fat_g,      precision: 5 },
-    { id: 'sugar-histogram',   dim: sugarDim, grp: sugarGrp, max: d => d.sugar_g,    precision: 5 },
-    { id: 'fiber-histogram',   dim: fiberDim, grp: fiberGrp, max: d => d.fiber_g,    precision: 2 },
-    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie,    precision: 100 }
+    { id: 'prot-histogram',    dim: protDim,  grp: protGrp,  max: d => d.protein_g, precision: 5  },
+    { id: 'fat-histogram',     dim: fatDim,   grp: fatGrp,   max: d => d.fat_g,      precision: 5  },
+    { id: 'sugar-histogram',   dim: sugarDim, grp: sugarGrp, max: d => d.sugar_g,    precision: 5  },
+    { id: 'fiber-histogram',   dim: fiberDim, grp: fiberGrp, max: d => d.fiber_g,    precision: 2  },
+    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie,    precision: 100}
   ];
 
-  nutrientConfigs.forEach(cfg => {
+  configs.forEach(cfg => {
     dc.barChart(`#${cfg.id} .dc-chart`)
       .width(barW)
       .height(barH)
@@ -94,7 +94,7 @@ d3.csv("added_food.csv", row => ({
       .brushOn(true);
   });
 
-  // 10. Scatter Plot (no brush) and tooltip map
+  // 10. Scatter Plot (no brush) + tooltip map
   const recordMap = new Map();
   data.forEach(d => recordMap.set(`${d.total_carb}|${d.grow_in_glu}`, d));
 
@@ -112,9 +112,9 @@ d3.csv("added_food.csv", row => ({
     .renderTitle(false);
 
   scatter.on('renderlet', chart => {
-    const grpData = scatter.group().all();
+    const grp = scatter.group().all();
     chart.svg().selectAll('circle.symbol')
-      .data(grpData)
+      .data(grp)
       .on('mouseover', (event, pd) => {
         const key = `${pd.key[0]}|${pd.key[1]}`;
         const d = recordMap.get(key);
