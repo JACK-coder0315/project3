@@ -18,7 +18,7 @@
     <section class="chart-row" id="overview">
       <div class="chart">
         <h2>Dashboard Overview</h2>
-        <p>Explore how meal timing and nutrients affect 2-hour glucose increase.</p>
+        <p>Explore how meal timing and nutrient composition affect 2-hour glucose increase.</p>
       </div>
     </section>
 
@@ -27,17 +27,17 @@
       <div id="time-histogram" class="chart">
         <h2>Meal Time (Hour)</h2>
         <div class="dc-chart"></div>
-        <p>This histogram shows the number of meal events in each hour of the day, helping you identify peak eating times.</p>
+        <p>Number of meal events in each hour of the day.</p>
       </div>
       <div id="subject-select" class="chart">
         <h2>Participant</h2>
         <div class="dc-chart"></div>
-        <p>Use this dropdown to filter the dashboard for a specific participant's data.</p>
+        <p>Filter to a single participant’s records.</p>
       </div>
       <div id="total-count" class="chart">
         <h2>Event Count</h2>
         <div class="dc-chart"></div>
-        <p>Displays the total number of meal records currently selected by all active filters.</p>
+        <p>Total meals under current filters.</p>
       </div>
     </section>
 
@@ -46,17 +46,17 @@
       <div id="carb-histogram" class="chart">
         <h2>Carbs (10g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of carbohydrate intake per meal, grouped in 10 g increments.</p>
+        <p>Distribution of carbohydrate intake per meal.</p>
       </div>
       <div id="prot-histogram" class="chart">
         <h2>Protein (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of protein intake per meal, grouped in 5 g increments.</p>
+        <p>Distribution of protein intake per meal.</p>
       </div>
       <div id="fat-histogram" class="chart">
         <h2>Fat (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of fat intake per meal, grouped in 5 g increments.</p>
+        <p>Distribution of fat intake per meal.</p>
       </div>
     </section>
 
@@ -64,26 +64,26 @@
       <div id="sugar-histogram" class="chart">
         <h2>Sugar (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of sugar intake per meal, grouped in 5 g increments.</p>
+        <p>Distribution of sugar intake per meal.</p>
       </div>
       <div id="fiber-histogram" class="chart">
         <h2>Fiber (2g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of dietary fiber intake per meal, grouped in 2 g increments.</p>
+        <p>Distribution of dietary fiber per meal.</p>
       </div>
       <div id="calorie-histogram" class="chart">
         <h2>Calories (100kcal bins)</h2>
         <div class="dc-chart"></div>
-        <p>Distribution of total calories per meal, grouped in 100 kcal increments.</p>
+        <p>Distribution of total calories per meal.</p>
       </div>
     </section>
 
     <!-- Scatter Plot -->
     <section class="chart-row">
       <div id="scatter-plot" class="chart large">
-        <h2>Carbs vs. Glucose Increase</h2>
+        <h2>Carbs vs. 2-Hour Glucose Increase</h2>
         <div class="dc-chart"></div>
-        <p>Each point is a meal: x = carbs (g), y = 2-hour glucose rise.</p>
+        <p>Each point: x = carbs (g), y = glucose increase in 2 hours.</p>
       </div>
     </section>
 
@@ -91,11 +91,11 @@
     <section class="chart-row" id="argument">
       <div class="chart large">
         <h2>Key Insights</h2>
-        <p><strong>1. Carbohydrates</strong> drive most of the glucose increase.</p>
-        <p><strong>2. Protein, fat, and fiber</strong> blunt the carb-induced spike.</p>
-        <p><strong>3. Meal timing</strong> influences sensitivity (e.g., breakfast vs. dinner).</p>
-        <p><strong>4. Individual variation</strong> highlights personal metabolic differences.</p>
-        <p><strong>5. Data robustness</strong> is ensured by event count under filters.</p>
+        <p><strong>1.</strong> Carbohydrates drive most of the glucose rise.</p>
+        <p><strong>2.</strong> Protein, fat, and fiber blunt the spike.</p>
+        <p><strong>3.</strong> Meal timing matters (e.g., breakfast vs. dinner).</p>
+        <p><strong>4.</strong> Individuals vary in response.</p>
+        <p><strong>5.</strong> Event count ensures sample robustness.</p>
       </div>
     </section>
   </main>

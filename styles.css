@@ -61,7 +61,7 @@ header h1 {
   margin: 0.25rem 0;
 }
 
-/* Center Overview & Key Insights */
+/* Center Overview & Insights */
 #overview .chart,
 #argument .chart {
   display: flex;
@@ -85,8 +85,4 @@ header h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-#timeseries-chart {
-  flex: 1;
 }
