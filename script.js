@@ -22,17 +22,17 @@ d3.csv("added_food.csv", d => ({
   const personDim  = cf.dimension(d => d.person);
   const allCount   = cf.groupAll();
   const timeGrp    = timeDim.group().reduceCount();
-  const carbDim    = cf.dimension(d => Math.floor(d.total_carb / 10) * 10);
+  const carbDim    = cf.dimension(d => Math.floor(d.total_carb/10)*10);
   const carbGrp    = carbDim.group().reduceCount();
-  const protDim    = cf.dimension(d => Math.floor(d.protein_g / 5) * 5);
+  const protDim    = cf.dimension(d => Math.floor(d.protein_g/5)*5);
   const protGrp    = protDim.group().reduceCount();
-  const fatDim     = cf.dimension(d => Math.floor(d.fat_g / 5) * 5);
+  const fatDim     = cf.dimension(d => Math.floor(d.fat_g/5)*5);
   const fatGrp     = fatDim.group().reduceCount();
-  const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g / 5) * 5);
+  const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g/5)*5);
   const sugarGrp   = sugarDim.group().reduceCount();
-  const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g / 2) * 2);
+  const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g/2)*2);
   const fiberGrp   = fiberDim.group().reduceCount();
-  const calDim     = cf.dimension(d => Math.floor(d.calorie / 100) * 100);
+  const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
   const calGrp     = calDim.group().reduceCount();
   const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
 
@@ -76,32 +76,31 @@ d3.csv("added_food.csv", d => ({
       .elasticY(true).brushOn(true);
   });
 
-  // 10. Scatter Plot with custom tooltip, brush disabled
+  // 10. Scatter Plot – brush disabled to restore default cursor
   const scatter = dc.scatterPlot("#scatter-plot .dc-chart")
     .width(scW).height(scH)
     .dimension(scatterDim).group(scatterDim.group())
     .x(d3.scaleLinear().domain([0, d3.max(data,d=>d.total_carb)+10]))
     .y(d3.scaleLinear().domain([0, d3.max(data,d=>d.grow_in_glu)+10]))
     .symbolSize(8)
-    .brushOn(false)  // disable brush to avoid crosshair cursor
+    .brushOn(false)  // ← 关闭刷选以去掉十字光标
     .renderHorizontalGridLines(true)
     .renderVerticalGridLines(true)
     .renderTitle(false);
 
+  // 在 renderlet 阶段给每个点绑定鼠标悬浮事件
   scatter.on('renderlet', chart => {
-    const plotData = chart.plotData();
-    chart.svg().selectAll('circle.dot, path.symbol')
-      .data(plotData)
-      .on('mouseover', (event, pd) => {
-        const d = pd.data;
+    chart.svg().selectAll('circle.symbol, path.symbol')
+      .on('mouseover', (event, d) => {
+        // d.key = [total_carb, grow_in_glu]
         d3.select('body').append('div')
           .attr('class','tooltip')
           .html(`
-            <strong>Person:</strong> ${d.person}<br/>
-            <strong>Total Carb:</strong> ${d.total_carb} g<br/>
-            <strong>Protein:</strong> ${d.protein_g} g<br/>
-            <strong>Fat:</strong> ${d.fat_g} g<br/>
-            <strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL
+            <strong>Person:</strong> Unknown<br/>
+            <strong>Total Carb:</strong> ${d.key[0]} g<br/>
+            <strong>Protein:</strong> 0 g<br/>
+            <strong>Fat:</strong> 0 g<br/>
+            <strong>Δ Glucose:</strong> ${d.key[1]} mg/dL
           `)
           .style('left', (event.pageX + 10) + 'px')
           .style('top',  (event.pageY + 10) + 'px');
@@ -114,7 +113,7 @@ d3.csv("added_food.csv", d => ({
   // Render all charts
   dc.renderAll();
 
-  // Reset filters
+  // Reset Filters
   d3.select("#reset-filters").on("click", () => {
     dc.filterAll();
     dc.renderAll();
