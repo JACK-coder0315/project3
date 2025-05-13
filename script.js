@@ -12,43 +12,47 @@ d3.csv("added_food.csv", d => ({
   grow_in_glu: +d.grow_in_glu,
   person:      d.person
 })).then(data => {
+  // Compute decimal hour
   data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
   });
+
   const cf = crossfilter(data);
 
-  // Dimensions & Groups
+  // Dimensions
   const timeDim    = cf.dimension(d => Math.floor(d.mealHour));
   const personDim  = cf.dimension(d => d.person);
-  const allCount   = cf.groupAll();
-  const timeGrp    = timeDim.group().reduceCount();
   const carbDim    = cf.dimension(d => Math.floor(d.total_carb/10)*10);
-  const carbGrp    = carbDim.group().reduceCount();
   const protDim    = cf.dimension(d => Math.floor(d.protein_g/5)*5);
-  const protGrp    = protDim.group().reduceCount();
   const fatDim     = cf.dimension(d => Math.floor(d.fat_g/5)*5);
-  const fatGrp     = fatDim.group().reduceCount();
   const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g/5)*5);
-  const sugarGrp   = sugarDim.group().reduceCount();
   const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g/2)*2);
-  const fiberGrp   = fiberDim.group().reduceCount();
   const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
-  const calGrp     = calDim.group().reduceCount();
   const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
+  const allCount   = cf.groupAll();
 
-  // Chart sizes
+  // Groups
+  const timeGrp  = timeDim.group().reduceCount();
+  const carbGrp  = carbDim.group().reduceCount();
+  const protGrp  = protDim.group().reduceCount();
+  const fatGrp   = fatDim.group().reduceCount();
+  const sugarGrp = sugarDim.group().reduceCount();
+  const fiberGrp = fiberDim.group().reduceCount();
+  const calGrp   = calDim.group().reduceCount();
+
+  // Chart dimensions
   const cw   = document.getElementById('charts').clientWidth;
   const barW = (cw - 32)/3, barH = 450;
   const scW  = cw - 32,       scH = 600;
 
-  // 1. Meal Time Histogram
+  // 1. Meal Time
   dc.barChart("#time-histogram .dc-chart")
     .width(barW).height(barH)
     .dimension(timeDim).group(timeGrp)
     .x(d3.scaleLinear().domain([0,24])).xUnits(dc.units.fp.precision(1))
     .elasticY(true).brushOn(true);
 
-  // 2. Participant Selection
+  // 2. Participant
   dc.selectMenu("#subject-select .dc-chart")
     .dimension(personDim).group(personDim.group())
     .multiple(false).numberVisible(10);
@@ -59,7 +63,7 @@ d3.csv("added_food.csv", d => ({
     .valueAccessor(d => d)
     .group(allCount);
 
-  // 4–9. Nutrient Histograms
+  // 4-9. Nutrient Histograms
   [
     { id:'carb-histogram',    dim:carbDim,  grp:carbGrp,  max:d=>d.total_carb, precision:10 },
     { id:'prot-histogram',    dim:protDim,  grp:protGrp,  max:d=>d.protein_g, precision:5  },
@@ -71,49 +75,49 @@ d3.csv("added_food.csv", d => ({
     dc.barChart(`#${cfg.id} .dc-chart`)
       .width(barW).height(barH)
       .dimension(cfg.dim).group(cfg.grp)
-      .x(d3.scaleLinear().domain([0, d3.max(data, cfg.max)]))
+      .x(d3.scaleLinear().domain([0, d3.max(data,cfg.max)]))
       .xUnits(dc.units.fp.precision(cfg.precision))
       .elasticY(true).brushOn(true);
   });
 
-  // 10. Scatter Plot – brush disabled to restore default cursor
+  // 10. Scatter Plot (no brush)
   const scatter = dc.scatterPlot("#scatter-plot .dc-chart")
     .width(scW).height(scH)
     .dimension(scatterDim).group(scatterDim.group())
     .x(d3.scaleLinear().domain([0, d3.max(data,d=>d.total_carb)+10]))
     .y(d3.scaleLinear().domain([0, d3.max(data,d=>d.grow_in_glu)+10]))
     .symbolSize(8)
-    .brushOn(false)  // ← 关闭刷选以去掉十字光标
+    .brushOn(false)
     .renderHorizontalGridLines(true)
     .renderVerticalGridLines(true)
     .renderTitle(false);
 
-  // 在 renderlet 阶段给每个点绑定鼠标悬浮事件
   scatter.on('renderlet', chart => {
-    chart.svg().selectAll('circle.symbol, path.symbol')
-      .on('mouseover', (event, d) => {
-        // d.key = [total_carb, grow_in_glu]
+    const plotData = chart.plotData();
+    chart.svg().selectAll('circle.symbol')
+      .data(plotData)
+      .on('mouseover', (e, pd) => {
+        const d = pd.data;
         d3.select('body').append('div')
           .attr('class','tooltip')
-          .html(`
-            <strong>Person:</strong> Unknown<br/>
-            <strong>Total Carb:</strong> ${d.key[0]} g<br/>
-            <strong>Protein:</strong> 0 g<br/>
-            <strong>Fat:</strong> 0 g<br/>
-            <strong>Δ Glucose:</strong> ${d.key[1]} mg/dL
-          `)
-          .style('left', (event.pageX + 10) + 'px')
-          .style('top',  (event.pageY + 10) + 'px');
+          .html(
+            `<strong>Person:</strong> ${d.person}<br/>` +
+            `<strong>Total Carb:</strong> ${d.total_carb} g<br/>` +
+            `<strong>Protein:</strong> ${d.protein_g} g<br/>` +
+            `<strong>Fat:</strong> ${d.fat_g} g<br/>` +
+            `<strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL`
+          )
+          .style('left', (e.pageX+10)+'px')
+          .style('top',  (e.pageY+10)+'px');
       })
       .on('mouseout', () => {
         d3.selectAll('.tooltip').remove();
       });
   });
 
-  // Render all charts
   dc.renderAll();
 
-  // Reset Filters
+  // Reset filters
   d3.select("#reset-filters").on("click", () => {
     dc.filterAll();
     dc.renderAll();
