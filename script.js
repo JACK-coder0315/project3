@@ -1,4 +1,7 @@
 // script.js
+// Override DC.js default color scheme to avoid deprecated d3.schemeCategory20c warning
+dc.config.defaultColors(d3.schemeTableau10);
+
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 d3.csv("added_food.csv", row => ({
@@ -79,7 +82,7 @@ d3.csv("added_food.csv", row => ({
     { id: 'fat-histogram',     dim: fatDim,   grp: fatGrp,   max: d => d.fat_g,      precision: 5  },
     { id: 'sugar-histogram',   dim: sugarDim, grp: sugarGrp, max: d => d.sugar_g,    precision: 5  },
     { id: 'fiber-histogram',   dim: fiberDim, grp: fiberGrp, max: d => d.fiber_g,    precision: 2  },
-    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie,    precision: 100}
+    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie,    precision: 100 }
   ];
 
   configs.forEach(cfg => {
@@ -94,7 +97,8 @@ d3.csv("added_food.csv", row => ({
       .brushOn(true);
   });
 
-  // 10. Scatter Plot (no brush) + tooltip map
+  // 10. Scatter Plot with hover tooltip
+  // Build record map for full data lookup
   const recordMap = new Map();
   data.forEach(d => recordMap.set(`${d.total_carb}|${d.grow_in_glu}`, d));
 
@@ -112,7 +116,7 @@ d3.csv("added_food.csv", row => ({
     .renderTitle(false);
 
   scatter.on('renderlet', chart => {
-    const grp = scatter.group().all();
+    const grp = scatterDim.group().all();
     chart.svg().selectAll('circle.symbol')
       .data(grp)
       .on('mouseover', (event, pd) => {
