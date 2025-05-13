@@ -12,47 +12,43 @@ d3.csv("added_food.csv", d => ({
   grow_in_glu: +d.grow_in_glu,
   person:      d.person
 })).then(data => {
-  // Compute decimal hour
   data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
   });
-
   const cf = crossfilter(data);
 
-  // Dimensions
+  // Dimensions & Groups
   const timeDim    = cf.dimension(d => Math.floor(d.mealHour));
   const personDim  = cf.dimension(d => d.person);
-  const carbDim    = cf.dimension(d => Math.floor(d.total_carb/10)*10);
-  const protDim    = cf.dimension(d => Math.floor(d.protein_g/5)*5);
-  const fatDim     = cf.dimension(d => Math.floor(d.fat_g/5)*5);
-  const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g/5)*5);
-  const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g/2)*2);
-  const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
-  const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
   const allCount   = cf.groupAll();
+  const timeGrp    = timeDim.group().reduceCount();
+  const carbDim    = cf.dimension(d => Math.floor(d.total_carb/10)*10);
+  const carbGrp    = carbDim.group().reduceCount();
+  const protDim    = cf.dimension(d => Math.floor(d.protein_g/5)*5);
+  const protGrp    = protDim.group().reduceCount();
+  const fatDim     = cf.dimension(d => Math.floor(d.fat_g/5)*5);
+  const fatGrp     = fatDim.group().reduceCount();
+  const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g/5)*5);
+  const sugarGrp   = sugarDim.group().reduceCount();
+  const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g/2)*2);
+  const fiberGrp   = fiberDim.group().reduceCount();
+  const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
+  const calGrp     = calDim.group().reduceCount();
+  const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
 
-  // Groups
-  const timeGrp  = timeDim.group().reduceCount();
-  const carbGrp  = carbDim.group().reduceCount();
-  const protGrp  = protDim.group().reduceCount();
-  const fatGrp   = fatDim.group().reduceCount();
-  const sugarGrp = sugarDim.group().reduceCount();
-  const fiberGrp = fiberDim.group().reduceCount();
-  const calGrp   = calDim.group().reduceCount();
-
-  // Chart dimensions
+  // Chart sizes
   const cw   = document.getElementById('charts').clientWidth;
   const barW = (cw - 32)/3, barH = 450;
   const scW  = cw - 32,       scH = 600;
 
-  // 1. Meal Time
+  // 1. Meal Time Histogram
   dc.barChart("#time-histogram .dc-chart")
     .width(barW).height(barH)
     .dimension(timeDim).group(timeGrp)
     .x(d3.scaleLinear().domain([0,24])).xUnits(dc.units.fp.precision(1))
     .elasticY(true).brushOn(true);
 
-  // 2. Participant
+  // 2. Participant Selection
   dc.selectMenu("#subject-select .dc-chart")
     .dimension(personDim).group(personDim.group())
     .multiple(false).numberVisible(10);
@@ -63,7 +59,7 @@ d3.csv("added_food.csv", d => ({
     .valueAccessor(d => d)
     .group(allCount);
 
-  // 4-9. Nutrient Histograms
+  // 4–9. Nutrient Histograms
   [
     { id:'carb-histogram',    dim:carbDim,  grp:carbGrp,  max:d=>d.total_carb, precision:10 },
     { id:'prot-histogram',    dim:protDim,  grp:protGrp,  max:d=>d.protein_g, precision:5  },
@@ -92,9 +88,10 @@ d3.csv("added_food.csv", d => ({
     .renderVerticalGridLines(true)
     .renderTitle(false);
 
+  // Attach hover tooltip on path.symbol elements
   scatter.on('renderlet', chart => {
     const plotData = chart.plotData();
-    chart.svg().selectAll('circle.symbol')
+    chart.svg().selectAll('path.symbol')
       .data(plotData)
       .on('mouseover', (e, pd) => {
         const d = pd.data;
@@ -115,6 +112,7 @@ d3.csv("added_food.csv", d => ({
       });
   });
 
+  // Render all charts
   dc.renderAll();
 
   // Reset filters
