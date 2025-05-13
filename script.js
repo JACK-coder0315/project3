@@ -1,3 +1,4 @@
+// script.js
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 d3.csv("all_glu_food.csv", d => ({
@@ -11,9 +12,7 @@ d3.csv("all_glu_food.csv", d => ({
   grow_in_glu: +d.grow_in_glu,
   person:      d.person
 })).then(data => {
-  data.forEach(d => {
-    d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
-  });
+  data.forEach(d => d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes()/60);
   const cf = crossfilter(data);
 
   // Dimensions & Groups
@@ -34,10 +33,9 @@ d3.csv("all_glu_food.csv", d => ({
   const fiberGrp   = fiberDim.group().reduceCount();
   const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
   const calGrp     = calDim.group().reduceCount();
-
   const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
 
-  // Chart sizes
+  // Chart dimensions
   const cw   = document.getElementById('charts').clientWidth;
   const barW = (cw - 32) / 3, barH = 450;
   const scW  = cw - 32, scH = 600;
@@ -54,12 +52,12 @@ d3.csv("all_glu_food.csv", d => ({
     .dimension(personDim).group(personDim.group())
     .multiple(false).numberVisible(10);
 
-  // Event Count
+  // Current Event Count
   dc.numberDisplay("#total-count .dc-chart")
     .formatNumber(d3.format("d")).valueAccessor(d => d)
     .group(allCount);
 
-  // Nutrient Histograms
+  // Nutrient Histograms Array
   [
     { id:'carb-histogram', dim:carbDim, grp:carbGrp, max:d=>d.total_carb, precision:10 },
     { id:'prot-histogram', dim:protDim, grp:protGrp, max:d=>d.protein_g, precision:5 },
@@ -90,8 +88,5 @@ d3.csv("all_glu_food.csv", d => ({
   dc.renderAll();
 
   // Reset Filters
-  d3.select("#reset-filters").on("click", () => {
-    dc.filterAll();
-    dc.renderAll();
-  });
+  d3.select("#reset-filters").on("click", () => { dc.filterAll(); dc.renderAll(); });
 });
