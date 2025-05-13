@@ -56,11 +56,6 @@ header h1 {
   text-align: center;
 }
 
-.chart p {
-  font-size: 0.9rem;
-  margin: 0.25rem 0;
-}
-
 .dc-chart {
   flex: 1;
   width: 100%;
@@ -76,8 +71,4 @@ header h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-#timeseries-chart {
-  flex: 1;
 }

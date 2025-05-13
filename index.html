@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Glucose Response Multi-Dimensional Dashboard</title>
+  <title>Glucose Response Dashboard</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://unpkg.com/dc@4/dist/style/dc.min.css" />
 </head>
@@ -14,37 +14,34 @@
   </header>
 
   <main id="charts">
-    <!-- Explanatory Section -->
-    <section id="explanation" class="chart-row">
+    <!-- Overview -->
+    <section class="chart-row">
       <div class="chart">
         <h2>Dashboard Overview</h2>
-        <p>This interactive dashboard lets you explore how meal timing and nutrient composition affect 2-hour glucose increase. Use the filters and histograms to slice data by time of day, macronutrient intake, and individual participants, then observe the scatter plot for direct correlations.</p>
+        <p>Explore how meal timing and nutrients affect 2-hour glucose increase.</p>
       </div>
     </section>
 
-    <!-- Filters and Summary -->
+    <!-- Filters -->
     <section class="chart-row">
       <div id="time-histogram" class="chart">
-        <h2>Meal Time (Hour of Day)</h2>
+        <h2>Meal Time (Hour)</h2>
         <div class="dc-chart"></div>
-        <p>Shows what hours meals occur.</p>
       </div>
       <div id="subject-select" class="chart">
-        <h2>Participant Selection</h2>
+        <h2>Participant</h2>
         <div class="dc-chart"></div>
-        <p>Select an individual participant.</p>
       </div>
       <div id="total-count" class="chart">
-        <h2>Current Event Count</h2>
+        <h2>Event Count</h2>
         <div class="dc-chart"></div>
-        <p>Number of records under current filters.</p>
       </div>
     </section>
 
     <!-- Nutrient Histograms -->
     <section class="chart-row">
       <div id="carb-histogram" class="chart">
-        <h2>Carbohydrates (10g bins)</h2>
+        <h2>Carbs (10g bins)</h2>
         <div class="dc-chart"></div>
       </div>
       <div id="prot-histogram" class="chart">
@@ -80,11 +77,15 @@
       </div>
     </section>
 
-    <!-- Selected Meal Time Series -->
+    <!-- Key Insights -->
     <section class="chart-row">
-      <div id="meal-timeseries" class="chart large">
-        <h2>Selected Meal Glucose Trend</h2>
-        <div id="timeseries-chart"></div>
+      <div class="chart large">
+        <h2>Key Insights</h2>
+        <p><strong>1. Carbohydrates</strong> are the primary driver of glucose increase.</p>
+        <p><strong>2. Macronutrients</strong> (protein, fat, fiber) blunt the glucose spike.</p>
+        <p><strong>3. Meal Timing</strong> affects sensitivity (e.g., breakfast vs. dinner).</p>
+        <p><strong>4. Individual Variation</strong> shows personal metabolic differences.</p>
+        <p><strong>5. Data Robustness</strong> ensured by event count under filters.</p>
       </div>
     </section>
   </main>
