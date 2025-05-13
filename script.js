@@ -1,7 +1,7 @@
 // script.js
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
-d3.csv("all_glu_food.csv", d => ({
+d3.csv("added_food.csv", d => ({
   time_begin:  parseTime(d.time_begin),
   total_carb:  +d.total_carb,
   protein_g:   +d.protein,
