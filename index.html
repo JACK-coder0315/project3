@@ -1,69 +1,67 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>血糖×营养多维交互 Dashboard</title>
-  <link rel="stylesheet" href="https://unpkg.com/dc@4/dist/style/dc.min.css"/>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glucose Response Multi-Dimensional Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/dc@4/dist/style/dc.min.css" />
 </head>
 <body>
   <header>
-    <h1>血糖反应多维探索</h1>
-    <button id="reset-filters">重置筛选</button>
+    <h1>Glucose Response Explorer</h1>
+    <button id="reset-filters">Reset Filters</button>
   </header>
+
   <main id="charts">
-    <!-- 第一行：宏量营养素分布 -->
     <section class="chart-row">
-      <div id="time-histogram" class="chart card">
-        <h2>进餐时段（整点小时）</h2>
+      <div id="time-histogram" class="chart">
+        <h2>Meal Time (Hour of Day)</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="subject-select" class="chart card">
-        <h2>受试者筛选</h2>
+      <div id="subject-select" class="chart">
+        <h2>Participant Selection</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="total-count" class="chart card">
-        <h2>当前事件数</h2>
+      <div id="total-count" class="chart">
+        <h2>Current Event Count</h2>
         <div class="dc-chart"></div>
       </div>
     </section>
 
-    <!-- 第二行：宏量柱状图 -->
     <section class="chart-row">
-      <div id="carb-histogram" class="chart card">
-        <h2>碳水 (10 g 档)</h2>
+      <div id="carb-histogram" class="chart">
+        <h2>Carbohydrates (10g bins)</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="prot-histogram" class="chart card">
-        <h2>蛋白 (5 g 档)</h2>
+      <div id="prot-histogram" class="chart">
+        <h2>Protein (5g bins)</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="fat-histogram" class="chart card">
-        <h2>脂肪 (5 g 档)</h2>
+      <div id="fat-histogram" class="chart">
+        <h2>Fat (5g bins)</h2>
         <div class="dc-chart"></div>
       </div>
     </section>
 
-    <!-- 第三行：微量与能量柱状图 -->
     <section class="chart-row">
-      <div id="sugar-histogram" class="chart card">
-        <h2>糖分 (5 g 档)</h2>
+      <div id="sugar-histogram" class="chart">
+        <h2>Sugar (5g bins)</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="fiber-histogram" class="chart card">
-        <h2>膳食纤维 (2 g 档)</h2>
+      <div id="fiber-histogram" class="chart">
+        <h2>Fiber (2g bins)</h2>
         <div class="dc-chart"></div>
       </div>
-      <div id="calorie-histogram" class="chart card">
-        <h2>能量 (100 kcal 档)</h2>
+      <div id="calorie-histogram" class="chart">
+        <h2>Calories (100kcal bins)</h2>
         <div class="dc-chart"></div>
       </div>
     </section>
 
-    <!-- 第四行：散点图 -->
     <section class="chart-row">
-      <div id="scatter-plot" class="chart card large">
-        <h2>碳水 vs. 血糖上升</h2>
+      <div id="scatter-plot" class="chart large">
+        <h2>Carbs vs. Glucose Increase</h2>
         <div class="dc-chart"></div>
       </div>
     </section>
@@ -75,4 +73,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-

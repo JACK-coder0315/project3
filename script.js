@@ -1,9 +1,7 @@
-// script.js
-
-// 1. 时间解析器，格式需与 CSV 中 time_begin 字段一致
+// Parse timestamp strings from CSV into JS Date objects
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
-// 2. 加载 CSV 并转换字段类型
+// Load and type-convert data
 d3.csv("all_glu_food.csv", d => ({
   time_begin:  parseTime(d.time_begin),
   total_carb:  +d.total_carb,
@@ -15,14 +13,14 @@ d3.csv("all_glu_food.csv", d => ({
   grow_in_glu: +d.grow_in_glu,
   person:      d.person
 })).then(data => {
-  // 3. 预处理：计算进餐时刻的小数小时表示
+  // Compute meal hour as decimal
   data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
   });
 
   const cf = crossfilter(data);
 
-  // 4. 定义维度
+  // Define dimensions
   const timeDim   = cf.dimension(d => Math.floor(d.mealHour));
   const personDim = cf.dimension(d => d.person);
   const carbDim   = cf.dimension(d => Math.floor(d.total_carb / 10) * 10);
@@ -33,7 +31,7 @@ d3.csv("all_glu_food.csv", d => ({
   const calDim    = cf.dimension(d => Math.floor(d.calorie / 100) * 100);
   const scatterD  = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
 
-  // 5. 定义分组
+  // Define groups
   const allCount  = cf.groupAll();
   const timeGrp   = timeDim.group().reduceCount();
   const carbGrp   = carbDim.group().reduceCount();
@@ -43,97 +41,63 @@ d3.csv("all_glu_food.csv", d => ({
   const fiberGrp  = fiberDim.group().reduceCount();
   const calGrp    = calDim.group().reduceCount();
 
-  // 6. 设置图表尺寸
-  const barW  = 450;
-  const barH  = 450;
-  const scW   = 900;
-  const scH   = 600;
+  // Determine chart widths based on container
+  const containerWidth = document.getElementById('charts').clientWidth;
+  const barW = (containerWidth - 32) / 3;
+  const barH = 450;
+  const scW  = containerWidth - 32;
+  const scH  = 600;
 
-  // 7. 渲染图表
-
+  // Render bar charts
   dc.barChart("#time-histogram .dc-chart")
     .width(barW).height(barH)
     .dimension(timeDim).group(timeGrp)
-    .x(d3.scaleLinear().domain([0,24]))
-    .xUnits(dc.units.fp.precision(1))
-    .elasticY(true)
-    .brushOn(true);
+    .x(d3.scaleLinear().domain([0, 24])).xUnits(dc.units.fp.precision(1))
+    .elasticY(true).brushOn(true);
 
   dc.selectMenu("#subject-select .dc-chart")
-    .dimension(personDim)
-    .group(personDim.group())
-    .multiple(false)
-    .numberVisible(10);
+    .dimension(personDim).group(personDim.group())
+    .multiple(false).numberVisible(10);
 
   dc.numberDisplay("#total-count .dc-chart")
-    .formatNumber(d3.format("d"))
-    .valueAccessor(d => d)
+    .formatNumber(d3.format("d")).valueAccessor(d => d)
     .group(allCount);
 
-  dc.barChart("#carb-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(carbDim).group(carbGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.total_carb)]))
-    .xUnits(dc.units.fp.precision(10))
-    .elasticY(true)
-    .brushOn(true);
+  // Other macros and micros
+  [
+    { id: 'carb-histogram', dim: carbDim, grp: carbGrp, max: d => d.total_carb, precision: 10 },
+    { id: 'prot-histogram', dim: protDim, grp: protGrp, max: d => d.protein_g, precision: 5 },
+    { id: 'fat-histogram',  dim: fatDim,  grp: fatGrp,  max: d => d.fat_g,      precision: 5 },
+    { id: 'sugar-histogram',dim: sugarDim,grp: sugarGrp,max: d => d.sugar_g,    precision: 5 },
+    { id: 'fiber-histogram',dim: fiberDim,grp: fiberGrp,max: d => d.fiber_g,    precision: 2 },
+    { id: 'calorie-histogram', dim: calDim, grp: calGrp, max: d => d.calorie, precision: 100 }
+  ].forEach(cfg => {
+    dc.barChart(`#${cfg.id} .dc-chart`)
+      .width(barW).height(barH)
+      .dimension(cfg.dim).group(cfg.grp)
+      .x(d3.scaleLinear().domain([0, d3.max(data, cfg.max)]))
+      .xUnits(dc.units.fp.precision(cfg.precision))
+      .elasticY(true).brushOn(true);
+  });
 
-  dc.barChart("#prot-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(protDim).group(protGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.protein_g)]))
-    .xUnits(dc.units.fp.precision(5))
-    .elasticY(true)
-    .brushOn(true);
-
-  dc.barChart("#fat-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(fatDim).group(fatGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.fat_g)]))
-    .xUnits(dc.units.fp.precision(5))
-    .elasticY(true)
-    .brushOn(true);
-
-  dc.barChart("#sugar-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(sugarDim).group(sugarGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.sugar_g)]))
-    .xUnits(dc.units.fp.precision(5))
-    .elasticY(true)
-    .brushOn(true);
-
-  dc.barChart("#fiber-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(fiberDim).group(fiberGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.fiber_g)]))
-    .xUnits(dc.units.fp.precision(2))
-    .elasticY(true)
-    .brushOn(true);
-
-  dc.barChart("#calorie-histogram .dc-chart")
-    .width(barW).height(barH)
-    .dimension(calDim).group(calGrp)
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.calorie)]))
-    .xUnits(dc.units.fp.precision(100))
-    .elasticY(true)
-    .brushOn(true);
-
+  // Scatter plot
   dc.scatterPlot("#scatter-plot .dc-chart")
     .width(scW).height(scH)
     .dimension(scatterD).group(scatterD.group())
-    .x(d3.scaleLinear().domain([0,d3.max(data, d=>d.total_carb)+10]))
-    .y(d3.scaleLinear().domain([0,d3.max(data, d=>d.grow_in_glu)+10]))
+    .x(d3.scaleLinear().domain([0, d3.max(data, d => d.total_carb) + 10]))
+    .y(d3.scaleLinear().domain([0, d3.max(data, d => d.grow_in_glu) + 10]))
     .symbolSize(8)
     .brushOn(true)
     .renderHorizontalGridLines(true)
     .renderVerticalGridLines(true);
 
-  // 8. 渲染所有
+  // Final render
   dc.renderAll();
 
-  // 9. 重置逻辑
+  // Reset filters
   d3.select("#reset-filters").on("click", () => {
     dc.filterAll();
     dc.renderAll();
   });
 });
+
