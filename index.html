@@ -46,17 +46,17 @@
       <div id="carb-histogram" class="chart">
         <h2>Carbs (10g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of carbohydrate intake per meal, grouped in 10-gram increments.</p>
+        <p>Distribution of carbohydrate intake per meal, grouped in 10 g increments.</p>
       </div>
       <div id="prot-histogram" class="chart">
         <h2>Protein (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of protein intake per meal, grouped in 5-gram increments.</p>
+        <p>Distribution of protein intake per meal, grouped in 5 g increments.</p>
       </div>
       <div id="fat-histogram" class="chart">
         <h2>Fat (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of fat intake per meal, grouped in 5-gram increments.</p>
+        <p>Distribution of fat intake per meal, grouped in 5 g increments.</p>
       </div>
     </section>
 
@@ -64,17 +64,17 @@
       <div id="sugar-histogram" class="chart">
         <h2>Sugar (5g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of sugar intake per meal, grouped in 5-gram increments.</p>
+        <p>Distribution of sugar intake per meal, grouped in 5 g increments.</p>
       </div>
       <div id="fiber-histogram" class="chart">
         <h2>Fiber (2g bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of dietary fiber intake per meal, grouped in 2-gram increments.</p>
+        <p>Distribution of dietary fiber intake per meal, grouped in 2 g increments.</p>
       </div>
       <div id="calorie-histogram" class="chart">
         <h2>Calories (100kcal bins)</h2>
         <div class="dc-chart"></div>
-        <p>Shows the distribution of total calories per meal, grouped in 100-kcal increments.</p>
+        <p>Distribution of total calories per meal, grouped in 100 kcal increments.</p>
       </div>
     </section>
 
@@ -83,7 +83,16 @@
       <div id="scatter-plot" class="chart large">
         <h2>Carbs vs. Glucose Increase</h2>
         <div class="dc-chart"></div>
-        <p>This scatter plot displays each meal as a point: carbohydrate grams on the x-axis vs. 2-hour glucose increase on the y-axis.</p>
+        <p>Each point is a meal: x = carbs (g), y = 2-hour glucose rise.</p>
+      </div>
+    </section>
+
+    <!-- Time Series for Selected Meal -->
+    <section class="chart-row">
+      <div id="meal-timeseries" class="chart large">
+        <h2>Selected Meal Glucose Trend</h2>
+        <div id="timeseries-chart"></div>
+        <p>After selecting a point in the scatter plot, this line chart shows glucose over time for that meal.</p>
       </div>
     </section>
 
@@ -91,11 +100,11 @@
     <section class="chart-row" id="argument">
       <div class="chart large">
         <h2>Key Insights</h2>
-        <p><strong>1. Carbohydrates</strong> are the primary driver of glucose increase.</p>
-        <p><strong>2. Macronutrients</strong> (protein, fat, fiber) blunt the glucose spike.</p>
-        <p><strong>3. Meal Timing</strong> affects sensitivity (e.g., breakfast vs. dinner).</p>
-        <p><strong>4. Individual Variation</strong> shows personal metabolic differences.</p>
-        <p><strong>5. Data Robustness</strong> ensured by event count under filters.</p>
+        <p><strong>1. Carbohydrates</strong> drive most of the glucose increase.</p>
+        <p><strong>2. Protein, fat, and fiber</strong> blunt the carb-induced spike.</p>
+        <p><strong>3. Meal timing</strong> influences sensitivity (e.g., breakfast vs. dinner).</p>
+        <p><strong>4. Individual variation</strong> highlights personal metabolic differences.</p>
+        <p><strong>5. Data robustness</strong> is ensured by event count under filters.</p>
       </div>
     </section>
   </main>

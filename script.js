@@ -1,3 +1,4 @@
+// script.js
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 d3.csv("all_glu_food.csv", d => ({
@@ -9,9 +10,12 @@ d3.csv("all_glu_food.csv", d => ({
   fiber_g:     +d.dietary_fiber,
   calorie:     +d.calorie,
   grow_in_glu: +d.grow_in_glu,
-  person:      d.person
+  person:      d.person,
+  event_id:    d.event_id
 })).then(data => {
-  data.forEach(d => d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes()/60);
+  data.forEach(d => {
+    d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes()/60;
+  });
   const cf = crossfilter(data);
 
   // Dimensions & Groups
@@ -73,7 +77,7 @@ d3.csv("all_glu_food.csv", d => ({
       .elasticY(true).brushOn(true);
   });
 
-  // Scatter Plot
+  // Scatter Plot with filter callback
   dc.scatterPlot("#scatter-plot .dc-chart")
     .width(scW).height(scH)
     .dimension(scatterDim).group(scatterDim.group())
@@ -81,11 +85,48 @@ d3.csv("all_glu_food.csv", d => ({
     .y(d3.scaleLinear().domain([0,d3.max(data,d=>d.grow_in_glu)+10]))
     .symbolSize(8)
     .brushOn(true)
+    .on('filtered', () => {
+      const sel = scatterDim.top(1)[0];
+      drawTimeSeries(sel);
+    })
     .renderHorizontalGridLines(true)
     .renderVerticalGridLines(true);
 
   dc.renderAll();
 
+  // Draw time series for selected meal
+  function drawTimeSeries(sel) {
+    const div = d3.select("#timeseries-chart");
+    if (!sel) { div.html(""); return; }
+    d3.csv(`glucose_series/${sel.event_id}.csv`, row => ({
+      timestamp: parseTime(row.timestamp),
+      glucose: +row.glucose
+    })).then(series => {
+      div.html("");
+      const margin = {top:20,right:30,bottom:30,left:40};
+      const width = div.node().clientWidth - margin.left - margin.right;
+      const height = 300 - margin.top - margin.bottom;
+      const svg = div.append('svg')
+        .attr('width', width+margin.left+margin.right)
+        .attr('height', height+margin.top+margin.bottom)
+        .append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+      const x = d3.scaleTime().domain(d3.extent(series, d=>d.timestamp)).range([0,width]);
+      const y = d3.scaleLinear().domain([d3.min(series, d=>d.glucose), d3.max(series, d=>d.glucose)]).range([height,0]);
+      svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x));
+      svg.append('g').call(d3.axisLeft(y));
+      svg.append('path')
+        .datum(series)
+        .attr('fill','none')
+        .attr('stroke','steelblue')
+        .attr('stroke-width',1.5)
+        .attr('d', d3.line().x(d=>x(d.timestamp)).y(d=>y(d.glucose)));
+    });
+  }
+
   // Reset Filters
-  d3.select("#reset-filters").on("click", () => { dc.filterAll(); dc.renderAll(); });
+  d3.select("#reset-filters").on("click", () => {
+    dc.filterAll();
+    dc.renderAll();
+    d3.select("#timeseries-chart").html("");
+  });
 });
