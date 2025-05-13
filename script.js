@@ -1,28 +1,9 @@
-// script.js（纯 D3 实现）
+// script.js
+// Use Tableau10 color scheme to avoid d3.schemeCategory20c warning
+dc.config.defaultColors(d3.schemeTableau10);
 
-// 1. 全局配置
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-const margin = {top: 20, right: 20, bottom: 30, left: 40};
 
-// 全局 state
-const filters = {
-  person: 'All',
-  timeRange: [0,24]  // 0–24h
-};
-
-// 各图尺寸（可根据需要调整）
-const WIDTH   = document.getElementById('charts').clientWidth;
-const BAR_W   = (WIDTH - 32) / 3, BAR_H = 250;
-const SCAT_W  = WIDTH - 32,     SCAT_H = 400;
-
-// 容器选择器
-const selectMenuDiv  = d3.select('#subject-select .dc-chart');
-const numberDiv      = d3.select('#total-count .dc-chart');
-const timeHistDiv    = d3.select('#time-histogram .dc-chart');
-const histIds        = ['carb','prot','fat','sugar','fiber','calorie'];
-const scatDiv        = d3.select('#scatter-plot .dc-chart');
-
-// 2. 加载并预处理数据
 d3.csv("added_food.csv", row => ({
   time_begin:  parseTime(row.time_begin),
   total_carb:  +row.total_carb,
@@ -34,185 +15,116 @@ d3.csv("added_food.csv", row => ({
   grow_in_glu: +row.grow_in_glu,
   person:      row.person
 }))
-.then(rawData => {
-  // 计算 mealHour
-  rawData.forEach(d => {
+.then(data => {
+  // add decimal meal hour
+  data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes()/60;
   });
 
-  // 全部唯一 participants
-  const people = ['All']
-    .concat(Array.from(new Set(rawData.map(d=>d.person))).sort());
+  const cf = crossfilter(data);
+  // Dimensions
+  const timeDim    = cf.dimension(d => Math.floor(d.mealHour));
+  const personDim  = cf.dimension(d => d.person);
+  const carbDim    = cf.dimension(d => Math.floor(d.total_carb/10)*10);
+  const protDim    = cf.dimension(d => Math.floor(d.protein_g/5)*5);
+  const fatDim     = cf.dimension(d => Math.floor(d.fat_g/5)*5);
+  const sugarDim   = cf.dimension(d => Math.floor(d.sugar_g/5)*5);
+  const fiberDim   = cf.dimension(d => Math.floor(d.fiber_g/2)*2);
+  const calDim     = cf.dimension(d => Math.floor(d.calorie/100)*100);
+  const scatterDim = cf.dimension(d => [d.total_carb, d.grow_in_glu]);
+  const allCount   = cf.groupAll();
 
-  // 3. 构建下拉菜单
-  selectMenuDiv.append('select')
-    .on('change', function() {
-      filters.person = this.value;
-      updateAll();
-    })
-    .selectAll('option')
-    .data(people).enter()
-    .append('option')
-      .attr('value', d=>d)
-      .text(d=>d);
+  // Groups for histograms
+  const timeGrp   = timeDim.group().reduceCount();
+  const carbGrp   = carbDim.group().reduceCount();
+  const protGrp   = protDim.group().reduceCount();
+  const fatGrp    = fatDim.group().reduceCount();
+  const sugarGrp  = sugarDim.group().reduceCount();
+  const fiberGrp  = fiberDim.group().reduceCount();
+  const calGrp    = calDim.group().reduceCount();
 
-  // 4. 初始化所有 SVG 画布
-  // 4.1 时间直方图
-  const svgTime = timeHistDiv.append('svg')
-    .attr('width', BAR_W).attr('height', BAR_H+margin.top+margin.bottom)
-    .append('g').attr('transform',`translate(${margin.left},${margin.top})`);
-  svgTime.append('g').attr('class','x-axis').attr('transform',`translate(0,${BAR_H})`);
-  svgTime.append('g').attr('class','y-axis');
+  // Chart sizing
+  const cw = document.getElementById('charts').clientWidth;
+  const barW = (cw - 32)/3, barH = 450;
+  const scW = cw - 32, scH = 600;
 
-  // 4.2 营养直方图（6个放到两行三列）
-  const svgHists = {};
-  histIds.forEach((id,i) => {
-    const div = d3.select(`#${id}-histogram .dc-chart`);
-    svgHists[id] = div.append('svg')
-      .attr('width', BAR_W).attr('height', BAR_H+margin.top+margin.bottom)
-      .append('g').attr('transform',`translate(${margin.left},${margin.top})`);
-    svgHists[id].append('g').attr('class','x-axis')
-      .attr('transform',`translate(0,${BAR_H})`);
-    svgHists[id].append('g').attr('class','y-axis');
+  // 1. Meal Time Histogram
+  dc.barChart('#time-histogram .dc-chart')
+    .width(barW).height(barH)
+    .dimension(timeDim).group(timeGrp)
+    .x(d3.scaleLinear().domain([0,24])).xUnits(dc.units.fp.precision(1))
+    .elasticY(true).brushOn(true);
+
+  // 2. Participant Selection
+  dc.selectMenu('#subject-select .dc-chart')
+    .dimension(personDim).group(personDim.group())
+    .multiple(false).numberVisible(10);
+
+  // 3. Event Count
+  dc.numberDisplay('#total-count .dc-chart')
+    .formatNumber(d3.format('d')).valueAccessor(d=>d)
+    .group(allCount);
+
+  // 4–9. Nutrient Histograms
+  const histConfigs = [
+    {id:'carb-histogram',dim:carbDim,grp:carbGrp,max:d=>d.total_carb,precision:10},
+    {id:'prot-histogram',dim:protDim,grp:protGrp,max:d=>d.protein_g,precision:5},
+    {id:'fat-histogram', dim:fatDim, grp:fatGrp, max:d=>d.fat_g, precision:5},
+    {id:'sugar-histogram',dim:sugarDim,grp:sugarGrp,max:d=>d.sugar_g,precision:5},
+    {id:'fiber-histogram',dim:fiberDim,grp:fiberGrp,max:d=>d.fiber_g,precision:2},
+    {id:'calorie-histogram',dim:calDim,grp:calGrp,max:d=>d.calorie,precision:100}
+  ];
+  histConfigs.forEach(cfg => {
+    dc.barChart(`#${cfg.id} .dc-chart`)
+      .width(barW).height(barH)
+      .dimension(cfg.dim).group(cfg.grp)
+      .x(d3.scaleLinear().domain([0,d3.max(data,cfg.max)]))
+      .xUnits(dc.units.fp.precision(cfg.precision))
+      .elasticY(true).brushOn(true);
   });
 
-  // 4.3 散点图
-  const svgScat = scatDiv.append('svg')
-    .attr('width', SCAT_W).attr('height', SCAT_H+margin.top+margin.bottom)
-    .append('g').attr('transform',`translate(${margin.left},${margin.top})`);
-  svgScat.append('g').attr('class','x-axis').attr('transform',`translate(0,${SCAT_H})`);
-  svgScat.append('g').attr('class','y-axis');
+  // 10. Scatter Plot showing individual points
+  // Build a custom group that preserves original records
+  const scatterGroup = {
+    all: () => data.map(d => ({ key:[d.total_carb,d.grow_in_glu], value:d }))
+  };
 
-  // Tooltip DIV（隐藏）
-  d3.select('body').append('div')
-    .attr('class','tooltip')
-    .style('position','absolute')
-    .style('display','none');
+  const scatter = dc.scatterPlot('#scatter-plot .dc-chart')
+    .width(scW).height(scH)
+    .dimension(scatterDim).group(scatterGroup)
+    .x(d3.scaleLinear().domain([0,d3.max(data,d=>d.total_carb)+10]))
+    .y(d3.scaleLinear().domain([0,d3.max(data,d=>d.grow_in_glu)+10]))
+    .symbolSize(8)
+    .brushOn(false)
+    .renderHorizontalGridLines(true)
+    .renderVerticalGridLines(true)
+    .renderTitle(false);
 
-  // 5. 更新并重绘所有图表
-  function updateAll() {
-    // 5.1 过滤数据
-    const filtered = rawData.filter(d => {
-      return (filters.person==='All' || d.person===filters.person)
-          && d.mealHour >= filters.timeRange[0]
-          && d.mealHour <= filters.timeRange[1];
-    });
+  // After render, bind tooltip events
+  scatter.on('postRender', chart => bindTooltip(chart));
+  scatter.on('postRedraw', chart => bindTooltip(chart));
 
-    // 5.2 更新事件总数
-    numberDiv.text(filtered.length);
-
-    // 5.3 时间直方图
-    drawHistogram({
-      svg: svgTime,
-      data: filtered.map(d=>d.mealHour),
-      domain: [0,24],
-      bins: d3.range(0,25),
-      xLabel: 'Hour',
-      width: BAR_W- margin.left - margin.right,
-      height: BAR_H
-    });
-
-    // 5.4 营养直方图
-    const configs = [
-      {id:'carb',    accessor:d=>d.total_carb,  domain:[0,d3.max(rawData,d=>d.total_carb)],   step:10, label:'Carbs (g)'},
-      {id:'prot',    accessor:d=>d.protein_g,   domain:[0,d3.max(rawData,d=>d.protein_g)],    step:5,  label:'Protein (g)'},
-      {id:'fat',     accessor:d=>d.fat_g,       domain:[0,d3.max(rawData,d=>d.fat_g)],        step:5,  label:'Fat (g)'},
-      {id:'sugar',   accessor:d=>d.sugar_g,     domain:[0,d3.max(rawData,d=>d.sugar_g)],      step:5,  label:'Sugar (g)'},
-      {id:'fiber',   accessor:d=>d.fiber_g,     domain:[0,d3.max(rawData,d=>d.fiber_g)],      step:2,  label:'Fiber (g)'},
-      {id:'calorie', accessor:d=>d.calorie,     domain:[0,d3.max(rawData,d=>d.calorie)],      step:100,label:'Calories'}
-    ];
-    configs.forEach(cfg => {
-      drawHistogram({
-        svg:       svgHists[cfg.id],
-        data:      filtered.map(cfg.accessor),
-        domain:    cfg.domain,
-        bins:      d3.range(cfg.domain[0], cfg.domain[1]+cfg.step, cfg.step),
-        xLabel:    cfg.label,
-        width:     BAR_W- margin.left - margin.right,
-        height:    BAR_H
-      });
-    });
-
-    // 5.5 散点图
-    drawScatter({
-      svg:     svgScat,
-      data:    filtered,
-      xAcc:    d=>d.total_carb,
-      yAcc:    d=>d.grow_in_glu,
-      width:   SCAT_W- margin.left - margin.right,
-      height:  SCAT_H
-    });
-  }
-
-  // 6. 通用：绘制直方图
-  function drawHistogram({svg,data,domain,bins,xLabel,width,height}) {
-    const x = d3.scaleLinear().domain(domain).range([0,width]);
-    const histogram = d3.histogram()
-      .domain(x.domain())
-      .thresholds(bins)
-      (data);
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(histogram,d=>d.length)]).nice()
-      .range([height,0]);
-
-    // Bars
-    const bars = svg.selectAll('rect.bar').data(histogram);
-    bars.join('rect')
-      .attr('class','bar')
-      .attr('x', d=>x(d.x0))
-      .attr('y', d=>y(d.length))
-      .attr('width', d=>x(d.x1)-x(d.x0)-1)
-      .attr('height', d=>height - y(d.length))
-      .attr('fill','steelblue');
-
-    // Axes
-    svg.select('.x-axis')
-      .call(d3.axisBottom(x).ticks(Math.min(10,bins.length)))
-      .selectAll('text').attr('dy','0.5em');
-    svg.select('.y-axis')
-      .call(d3.axisLeft(y).ticks(5));
-  }
-
-  // 7. 绘制散点图 + tooltip
-  function drawScatter({svg,data,xAcc,yAcc,width,height}) {
-    const x = d3.scaleLinear()
-      .domain([0, d3.max(data,xAcc)]).nice()
-      .range([0,width]);
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(data,yAcc)]).nice()
-      .range([height,0]);
-
-    // Draw points
-    const pts = svg.selectAll('circle.dot').data(data, d=>d.person+'|'+xAcc(d)+'|'+yAcc(d));
-    pts.join('circle')
-      .attr('class','dot')
-      .attr('cx', d=>x(xAcc(d)))
-      .attr('cy', d=>y(yAcc(d)))
-      .attr('r', 5)
-      .attr('fill','orange')
+  function bindTooltip(chart) {
+    chart.svg().selectAll('path.symbol')
       .style('cursor','pointer')
-      .on('mouseover', (event,d) => {
-        d3.select('.tooltip')
-          .style('display','block')
-          .html(`
-            <strong>Person:</strong> ${d.person}<br/>
-            <strong>Carbs:</strong> ${d.total_carb} g<br/>
-            <strong>Protein:</strong> ${d.protein_g} g<br/>
-            <strong>Fat:</strong> ${d.fat_g} g<br/>
-            <strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL
-          `)
-          .style('left', `${event.pageX+10}px`)
-          .style('top',  `${event.pageY+10}px`);
+      .on('mouseover', (e,pd) => {
+        const d = pd.value;  // original record
+        d3.select('body').append('div').attr('class','tooltip')
+          .html(
+            `<strong>Person:</strong> ${d.person}<br/>`+
+            `<strong>Carbs:</strong> ${d.total_carb} g<br/>`+
+            `<strong>Protein:</strong> ${d.protein_g} g<br/>`+
+            `<strong>Fat:</strong> ${d.fat_g} g<br/>`+
+            `<strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL`
+          )
+          .style('left',`${e.pageX+10}px`)
+          .style('top', `${e.pageY+10}px`);
       })
-      .on('mouseout', () => {
-        d3.select('.tooltip').style('display','none');
-      });
-
-    // Axes
-    svg.select('.x-axis').call(d3.axisBottom(x));
-    svg.select('.y-axis').call(d3.axisLeft(y));
+      .on('mouseout', () => d3.selectAll('.tooltip').remove());
   }
 
-  // 初次绘制
-  updateAll();
+  dc.renderAll();  // render everything
+
+  // Reset
+  d3.select('#reset-filters').on('click',()=>{dc.filterAll();dc.renderAll();});
 });
