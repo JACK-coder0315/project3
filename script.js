@@ -72,14 +72,14 @@ d3.csv("added_food.csv", row => ({
     .valueAccessor(d => d)
     .group(allCount);
 
-  // 4–9. Nutrient Histograms configuration array
+  // 4–9. Nutrient Histograms
   const nutrientConfigs = [
     { id: 'carb-histogram',    dim: carbDim,  grp: carbGrp,  max: d => d.total_carb, precision: 10 },
     { id: 'prot-histogram',    dim: protDim,  grp: protGrp,  max: d => d.protein_g, precision: 5 },
-    { id: 'fat-histogram',     dim: fatDim,   grp: fatGrp,   max: d => d.fat_g, precision: 5 },
-    { id: 'sugar-histogram',   dim: sugarDim, grp: sugarGrp, max: d => d.sugar_g, precision: 5 },
-    { id: 'fiber-histogram',   dim: fiberDim, grp: fiberGrp, max: d => d.fiber_g, precision: 2 },
-    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie, precision: 100 }
+    { id: 'fat-histogram',     dim: fatDim,   grp: fatGrp,   max: d => d.fat_g,      precision: 5 },
+    { id: 'sugar-histogram',   dim: sugarDim, grp: sugarGrp, max: d => d.sugar_g,    precision: 5 },
+    { id: 'fiber-histogram',   dim: fiberDim, grp: fiberGrp, max: d => d.fiber_g,    precision: 2 },
+    { id: 'calorie-histogram', dim: calDim,   grp: calGrp,   max: d => d.calorie,    precision: 100 }
   ];
 
   nutrientConfigs.forEach(cfg => {
@@ -94,13 +94,9 @@ d3.csv("added_food.csv", row => ({
       .brushOn(true);
   });
 
-  // 10. Scatter Plot (no brush)
-  // Build recordMap for tooltips
+  // 10. Scatter Plot (no brush) and tooltip map
   const recordMap = new Map();
-  data.forEach(d => {
-    const key = `${d.total_carb}|${d.grow_in_glu}`;
-    recordMap.set(key, d);
-  });
+  data.forEach(d => recordMap.set(`${d.total_carb}|${d.grow_in_glu}`, d));
 
   const scatter = dc.scatterPlot('#scatter-plot .dc-chart')
     .width(scW)
@@ -116,7 +112,6 @@ d3.csv("added_food.csv", row => ({
     .renderTitle(false);
 
   scatter.on('renderlet', chart => {
-    // Get group entries: each has key [carb, glu] and value count
     const grpData = scatter.group().all();
     chart.svg().selectAll('circle.symbol')
       .data(grpData)
@@ -137,10 +132,7 @@ d3.csv("added_food.csv", row => ({
           .style('left', `${event.pageX + 10}px`)
           .style('top',  `${event.pageY + 10}px`);
       })
-      .on('mouseout', () => {
-        d3.selectAll('.tooltip').remove();
-      });
-  });
+      .on('mouseout', () => d3.selectAll('.tooltip').remove());
   });
 
   // Render all charts
