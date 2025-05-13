@@ -12,6 +12,7 @@ d3.csv("added_food.csv", d => ({
   grow_in_glu: +d.grow_in_glu,
   person:      d.person
 })).then(data => {
+  // Compute decimal hour
   data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
   });
@@ -77,46 +78,47 @@ d3.csv("added_food.csv", d => ({
   });
 
   // 10. Scatter Plot (no brush, custom tooltip via recordMap)
-// Build a quick lookup: key = "carb|glu" -> record
-const recordMap = new Map();
-data.forEach(d => recordMap.set(`${d.total_carb}|${d.grow_in_glu}`, d));
+  // Build a quick lookup: key = "carb|glu" -> record
+  const recordMap = new Map();
+  data.forEach(d => recordMap.set(`${d.total_carb}|${d.grow_in_glu}`, d));
 
-const scatter = dc.scatterPlot("#scatter-plot .dc-chart")
-  .width(scW).height(scH)
-  .dimension(scatterDim).group(scatterDim.group())
-  .x(d3.scaleLinear().domain([0, d3.max(data,d=>d.total_carb)+10]))
-  .y(d3.scaleLinear().domain([0, d3.max(data,d=>d.grow_in_glu)+10]))
-  .symbolSize(8)
-  .brushOn(false)
-  .renderHorizontalGridLines(true)
-  .renderVerticalGridLines(true)
-  .renderTitle(false);
+  const scatter = dc.scatterPlot("#scatter-plot .dc-chart")
+    .width(scW).height(scH)
+    .dimension(scatterDim).group(scatterDim.group())
+    .x(d3.scaleLinear().domain([0, d3.max(data,d=>d.total_carb)+10]))
+    .y(d3.scaleLinear().domain([0, d3.max(data,d=>d.grow_in_glu)+10]))
+    .symbolSize(8)
+    .brushOn(false)
+    .renderHorizontalGridLines(true)
+    .renderVerticalGridLines(true)
+    .renderTitle(false);
 
-scatter.on('renderlet', chart => {
-  chart.svg().selectAll('circle.symbol')
-    .on('mouseover', (e, pd) => {
-      const key = `${pd.key[0]}|${pd.key[1]}`;
-      const d = recordMap.get(key);
-      if (!d) return;
-      d3.select('body').append('div')
-        .attr('class','tooltip')
-        .html(
-          `<strong>Person:</strong> ${d.person}<br/>` +
-          `<strong>Total Carb:</strong> ${d.total_carb} g<br/>` +
-          `<strong>Protein:</strong> ${d.protein_g} g<br/>` +
-          `<strong>Fat:</strong> ${d.fat_g} g<br/>` +
-          `<strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL`
-        )
-        .style('left', (e.pageX+10)+'px')
-        .style('top',  (e.pageY+10)+'px');
-    })
-    .on('mouseout', () => {
-      d3.selectAll('.tooltip').remove();
-    });
-});
+  scatter.on('renderlet', chart => {
+    chart.svg().selectAll('circle.symbol')
+      .data(chart.plotData())
+      .on('mouseover', (e, pd) => {
+        const key = `${pd.key[0]}|${pd.key[1]}`;
+        const d = recordMap.get(key);
+        if (!d) return;
+        d3.select('body').append('div')
+          .attr('class','tooltip')
+          .html(
+            `<strong>Person:</strong> ${d.person}<br/>` +
+            `<strong>Total Carb:</strong> ${d.total_carb} g<br/>` +
+            `<strong>Protein:</strong> ${d.protein_g} g<br/>` +
+            `<strong>Fat:</strong> ${d.fat_g} g<br/>` +
+            `<strong>Δ Glucose:</strong> ${d.grow_in_glu} mg/dL`
+          )
+          .style('left', (e.pageX+10)+'px')
+          .style('top',  (e.pageY+10)+'px');
+      })
+      .on('mouseout', () => {
+        d3.selectAll('.tooltip').remove();
+      });
+  });
 
-// Render all charts
-dc.renderAll();();
+  // Render all charts
+  dc.renderAll();
 
   // Reset filters
   d3.select("#reset-filters").on("click", () => {
