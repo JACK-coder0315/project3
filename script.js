@@ -10,15 +10,15 @@ d3.csv("all_glu_food.csv", d => ({
   fiber_g:     +d.dietary_fiber,
   calorie:     +d.calorie,
   grow_in_glu: +d.grow_in_glu,
-  person:      d.person,
-  event_id:    d.event_id
+  person:      d.person
 })).then(data => {
   data.forEach(d => {
     d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
   });
 
   const cf = crossfilter(data);
-  // Dimensions and groups
+
+  // Dimensions & Groups
   const timeDim    = cf.dimension(d => Math.floor(d.mealHour));
   const personDim  = cf.dimension(d => d.person);
   const allCount   = cf.groupAll();
@@ -77,8 +77,8 @@ d3.csv("all_glu_food.csv", d => ({
       .elasticY(true).brushOn(true);
   });
 
-  // 10. Scatter Plot with click handler
-  const scatter = dc.scatterPlot("#scatter-plot .dc-chart")
+  // 10. Scatter Plot
+  dc.scatterPlot("#scatter-plot .dc-chart")
     .width(scW).height(scH)
     .dimension(scatterDim).group(scatterDim.group())
     .x(d3.scaleLinear().domain([0, d3.max(data, d => d.total_carb) + 10]))
@@ -86,71 +86,14 @@ d3.csv("all_glu_food.csv", d => ({
     .symbolSize(8)
     .brushOn(true)
     .renderHorizontalGridLines(true)
-    .renderVerticalGridLines(true)
-    .on('postRender', chart => {
-      // Attach click event to each point
-      chart.svg().selectAll('circle.symbol').on('click', function(event, d) {
-        drawTimeSeries(d);
-      });
-    });
+    .renderVerticalGridLines(true);
 
+  // Render all charts
   dc.renderAll();
-
-  // Draw time series for selected meal
-  function drawTimeSeries(sel) {
-    const div = d3.select("#timeseries-chart");
-    if (!sel || !sel.event_id) {
-      div.html("");
-      return;
-    }
-    d3.csv(`glucose_series/${sel.event_id}.csv`, row => ({
-      timestamp: parseTime(row.timestamp),
-      glucose: +row.glucose
-    })).then(series => {
-      if (!series.length) {
-        div.html("<p style='color:red;'>No data for this meal.</p>");
-        return;
-      }
-      div.html("");
-      const margin = {top:20, right:30, bottom:30, left:40};
-      const width  = div.node().clientWidth - margin.left - margin.right;
-      const height = 300 - margin.top - margin.bottom;
-      const svg = div.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g').attr('transform', `translate(${margin.left},${margin.top})`);
-
-      const x = d3.scaleTime()
-        .domain(d3.extent(series, d => d.timestamp))
-        .range([0, width]);
-      const y = d3.scaleLinear()
-        .domain([d3.min(series, d => d.glucose), d3.max(series, d => d.glucose)])
-        .range([height, 0]);
-
-      svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x));
-      svg.append('g')
-        .call(d3.axisLeft(y));
-
-      svg.append('path')
-        .datum(series)
-        .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line()
-          .x(d => x(d.timestamp))
-          .y(d => y(d.glucose))
-        );
-    }).catch(err => {
-      div.html("<p style='color:red;'>Failed to load series.</p>");
-    });
-  }
 
   // Reset filters
   d3.select("#reset-filters").on("click", () => {
     dc.filterAll();
     dc.renderAll();
-    d3.select("#timeseries-chart").html("");
   });
 });
