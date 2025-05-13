@@ -1,4 +1,3 @@
-// script.js
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
 d3.csv("all_glu_food.csv", d => ({
@@ -57,7 +56,7 @@ d3.csv("all_glu_food.csv", d => ({
     .formatNumber(d3.format("d")).valueAccessor(d => d)
     .group(allCount);
 
-  // Nutrient Histograms Array
+  // Nutrient Histograms
   [
     { id:'carb-histogram', dim:carbDim, grp:carbGrp, max:d=>d.total_carb, precision:10 },
     { id:'prot-histogram', dim:protDim, grp:protGrp, max:d=>d.protein_g, precision:5 },
